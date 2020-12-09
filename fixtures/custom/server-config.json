@@ -1,0 +1,32 @@
+{
+    "server": {
+            "http_addr": ":4443",
+            "tls_key_file": "/certs/server/notary-server.key",
+            "tls_cert_file": "/certs/server/notary-server.crt"
+    },
+    "trust_service": {
+            "type": "remote",
+            "hostname": "notarysigner",
+            "port": "7899",
+            "tls_ca_file": "/certs/rootca/root-ca.crt",
+            "key_algorithm": "ecdsa",
+            "tls_client_cert": "/certs/server/notary-server.crt",
+            "tls_client_key": "/certs/server/notary-server.key"
+    },
+    "auth": {
+            "type": "token",
+            "options": {
+                    "realm": "https://172.22.11.19:8443/auth/realms/master/protocol/docker-v2/auth",
+                    "service": "docker",
+                    "issuer": "https://172.22.11.19:8443/auth/realms/master",
+                    "rootcertbundle": "/certs/rootca/root-ca.crt"
+            }
+    },
+    "logging": {
+            "level": "info"
+    },
+    "storage": {
+            "backend": "mysql",
+            "db_url": "server@tcp(mysql:3306)/notaryserver?parseTime=True"
+    }
+}
