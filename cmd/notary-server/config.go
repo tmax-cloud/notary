@@ -227,6 +227,19 @@ func getCacheConfig(configuration *viper.Viper) (current, consistent utils.Cache
 	return
 }
 
+func getAuthOpts(config *viper.Viper) map[string]interface{} {
+	authMap := make(map[string]interface{})
+	authMap["realm"] = config.GetString("auth.options.realm")
+	authMap["service"] = config.GetString("auth.options.service")
+	authMap["issuer"] = config.GetString("auth.options.issuer")
+	authMap["rootcertbundle"] = config.GetString("auth.options.rootcertbundle")
+	if len(config.GetString("auth.options.autoredirect")) > 0 {
+		authMap["autoredirect"] = config.GetString("auth.options.autoredirect")
+	}
+
+	return authMap
+}
+
 func parseServerConfig(configFilePath string, hRegister healthRegister, doBootstrap bool) (context.Context, server.Config, error) {
 	config := viper.New()
 	utils.SetupViper(config, envPrefix)
@@ -279,12 +292,14 @@ func parseServerConfig(configFilePath string, hRegister healthRegister, doBootst
 		return nil, server.Config{}, err
 	}
 
+	authOpts := getAuthOpts(config)
+
 	return ctx, server.Config{
 		Addr:                         httpAddr,
 		TLSConfig:                    tlsConfig,
 		Trust:                        trust,
 		AuthMethod:                   config.GetString("auth.type"),
-		AuthOpts:                     config.Get("auth.options"),
+		AuthOpts:                     authOpts,
 		RepoPrefixes:                 prefixes,
 		CurrentCacheControlConfig:    currentCache,
 		ConsistentCacheControlConfig: consistentCache,
